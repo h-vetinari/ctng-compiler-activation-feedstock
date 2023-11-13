@@ -146,6 +146,9 @@ outputs:
       run:
         - gfortran_impl_{{ ctng_target_platform }} {{ ctng_gcc }}.*
         - gfortran_impl_{{ target_platform }} {{ ctng_gcc }}.*
+        # cross-compiled gfortran_impl cannot depend on libgfortran
+        # due to bootstraping issues in ctng-compilers, so do it here
+        - libgfortran{{ libgfortran_soname }} {{ ctng_gcc }}.*
         # for activation of gcc env vars:
         - {{ pin_subpackage("gcc_" ~ ctng_target_platform, exact=True) }}
         # for activation of binutils env vars:
