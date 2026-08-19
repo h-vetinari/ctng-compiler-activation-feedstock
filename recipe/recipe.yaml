@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  build_num: 0
+  build_num: 1
   gcc_version: ${{ gcc_version | default("16.1.0") }}
   gcc_major: ${{ (gcc_version | split("."))[0] | int }}
   default_skip: ${{ (target_platform == "win-64" and cross_target_platform != "win-64") or cross_target_platform == "linux-s390x" or s390x or ((cross_target_platform in ("linux-riscv64", "osx-64", "osx-arm64") or osx) and gcc_major|int < 15) or (riscv64 and gcc_major|int < 15) or (riscv64 and cross_target_platform in ("osx-64", "osx-arm64")) }}
@@ -332,16 +332,18 @@ outputs:
       run:
         - gfortran_impl_${{ cross_target_platform }} ${{ gcc_version }}.*
         - gfortran_impl_${{ target_platform }} ${{ gcc_version }}.*
-        # for activation of gcc env vars:
-        - ${{ pin_subpackage("gcc_" ~ cross_target_platform, exact=True) }}
-        # for activation of binutils env vars:
-        - if: cross_target_platform not in ("osx-64", "osx-arm64")
-          then: binutils_${{ cross_target_platform }}
-          else: cctools_${{ cross_target_platform }}
+        # for activation of gcc and binutils env vars:
+        - if: cross_target_platform in ("osx-64", "osx-arm64")
+          then:
+            - clang_${{ cross_target_platform }}
+            - cctools_${{ cross_target_platform }}
+            - if: osx
+              then: sdkroot_env_${{ cross_target_platform }}
+          else:
+            - ${{ pin_subpackage("gcc_" ~ cross_target_platform, exact=True) }}
+            - binutils_${{ cross_target_platform }}
         - if: cross_stdlib != "None"
           then: ${{ cross_stdlib }}_${{ cross_target_platform }}
-        - if: osx and cross_target_platform in ("osx-64", "osx-arm64")
-          then: sdkroot_env_${{ cross_target_platform }}
       run_exports:
         strong:
           - libgfortran${{ libgfortran_soname }} >=${{ gcc_version }}
