@@ -352,22 +352,24 @@ outputs:
           - if: cross_target_platform == "win-64"
             then: ucrt >=10.0.20348.0
     tests:
-      - files:
-          recipe:
-            - tests/fortomp/*
-        requirements:
-          run:
-            - if: x86_64 or aarch64 or ppc64le
-              then: cmake >=3.11
-            - if: x86_64 or aarch64 or ppc64le
-              then: make
-            - if: cross_stdlib != "None"
-              then: ${{ cross_stdlib }}_${{ cross_target_platform }} ${{ cross_stdlib_version }}.*
-        script:
-          - ${FC} --version
-          - pushd tests/fortomp
-          - if: target_platform == cross_target_platform and (x86_64 or aarch64 or ppc64le)
-            then: sh test_fort.sh
+      - if: linux and cross_target_platform not in ("osx-64", "osx-arm64"):
+        then:
+          files:
+            recipe:
+              - tests/fortomp/*
+          requirements:
+            run:
+              - if: x86_64 or aarch64 or ppc64le
+                then: cmake >=3.11
+              - if: x86_64 or aarch64 or ppc64le
+                then: make
+              - if: cross_stdlib != "None"
+                then: ${{ cross_stdlib }}_${{ cross_target_platform }} ${{ cross_stdlib_version }}.*
+          script:
+            - ${FC} --version
+            - pushd tests/fortomp
+            - if: target_platform == cross_target_platform and (x86_64 or aarch64 or ppc64le)
+              then: sh test_fort.sh
     about:
       summary: GNU Fortran Compiler (activation scripts)
       license: BSD-3-Clause
@@ -378,7 +380,7 @@ outputs:
       name: gcc_bootstrap_${{ cross_target_platform }}
       version: ${{ gcc_version }}
     build:
-      skip: default_skip
+      skip: default_skip or cross_target_platform in ("osx-64", "osx-arm64")
       always_include_files:
         - ${{ library_prefix }}bin/
         - ${{ library_prefix }}etc/
