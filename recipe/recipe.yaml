@@ -352,7 +352,7 @@ outputs:
           - if: cross_target_platform == "win-64"
             then: ucrt >=10.0.20348.0
     tests:
-      - if: linux and cross_target_platform not in ("osx-64", "osx-arm64"):
+      - if: linux and cross_target_platform not in ("osx-64", "osx-arm64")
         then:
           - files:
               recipe:
