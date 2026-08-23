@@ -1,7 +1,7 @@
 MACOSX_SDK_VERSION:
   - 14.5
 gcc_version:
-  - 16.1.0
+  - 16.2.0
   - 15.3.0
   - 14.4.0
 libgfortran_soname:
